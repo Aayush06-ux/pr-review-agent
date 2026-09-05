@@ -22,12 +22,24 @@ app.include_router(health_router)
 app.include_router(hitl_router)
 
 
+@app.get("/")
+@app.post("/")
+async def root():
+    """Root endpoint welcoming visitors and directing webhook calls to /webhook."""
+    return {
+        "status": "ok",
+        "message": "AI PR Review Agent is running live 24/7!",
+        "webhook_endpoint": "/webhook",
+        "health_endpoint": "/health"
+    }
+
+
 async def process_pr_review(repo_full_name: str, pr_number: int, pr_diff_url: str, event_id: Optional[int] = None) -> Dict[str, Any]:
     """
     23-Module Enterprise PR Review Pipeline:
     1. Downloads raw PR diff using GitHub API.
     2. Parses diff and filters out lockfiles/binaries.
-    3. Runs 4 specialist reasoner agents (Security, Quality, Tests, Docs) with 3-Tier Memory (Semantic, Episodic, Procedural).
+    3. Runs 4 specialist reasoner agents (Security, Quality, Tests, Docs) with 3-Tier Memory.
     4. Deduplicates findings and evaluates Human-in-the-Loop confidence gate.
     5. Posts inline review comments & summary report to GitHub.
     6. Logs execution trace and memory updates to data spine.
